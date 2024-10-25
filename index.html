@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AR Furniture Placement</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://ar-js-org.github.io/AR.js/aframe/build/aframe-ar.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #instructions { position: absolute; top: 10px; left: 10px; color: white; }
+    </style>
+  </head>
+  <body>
+    <div id="instructions">Click to place the furniture!</div>
+    
+    <a-scene embedded arjs>
+      <a-entity camera></a-entity>
+
+      <!-- Ground Plane -->
+      <a-entity
+        geometry="primitive: plane; width: 10; height: 10"
+        material="color: transparent; opacity: 0.5"
+        position="0 0 -5">
+      </a-entity>
+
+      <!-- Furniture Model (replace the URL with your own GLTF model) -->
+      <a-entity
+        id="furniture"
+        gltf-model="url(https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models/models/2.0/Cube/glTF/Cube.gltf)"
+        scale="0.5 0.5 0.5"
+        position="0 0 -5">
+      </a-entity>
+    </a-scene>
+
+    <script>
+      // Raycasting for placing furniture
+      const furniture = document.getElementById('furniture');
+      const scene = document.querySelector('a-scene');
+
+      // Add event listener for click
+      scene.addEventListener('click', function (event) {
+        // Use raycaster to find the intersection with the ground
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, scene.camera);
+        const intersects = raycaster.intersectObjects(scene.children);
+
+        if (intersects.length > 0) {
+          // Place the furniture at the intersection point
+          const intersection = intersects[0];
+          furniture.setAttribute('position', intersection.point);
+        }
+      });
+    </script>
+  </body>
+</html>
